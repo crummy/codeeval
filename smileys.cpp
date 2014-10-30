@@ -5,77 +5,49 @@
 
 using namespace std;
 
-bool isBalanced(string str);
+bool isBalanced(string str, int parenDepth);
 
-// - An empty string "" 
-bool isEmpty(string str) {
-    return str.length() == 0;
-}
-
-// - One or more of the following characters: 'a' to 'z', ' ' (a space) or ':' (a colon) 
-bool isLegalChars(string str) {
-    for(string::iterator it = str.begin(); it != str.end(); ++it) {
-        char ch = *it;
-        if ((ch < 'a' || ch > 'z') && ch != ':' && ch != ' ') {
+bool isBalanced(string str, int parenDepth) {
+    for (int chIndex = 0; chIndex < str.length(); ++chIndex) {
+        char ch = str.at(chIndex);
+        //cout << parenDepth << " " << ch << endl;
+        if (ch == '(') {
+            parenDepth++;
+        }
+        else if (ch == ')') {
+            parenDepth--;
+        }
+        else if (ch == '[') {
+            if (isBalanced(str.substr(chIndex + 1), parenDepth)) {
+                // must be a smiley
+            }
+            else if (isBalanced(str.substr(chIndex + 1), parenDepth + 1)) {
+                parenDepth++;
+            }
+        }
+        else if (ch == ']') {
+            if (isBalanced(str.substr(chIndex + 1), parenDepth)) {
+                // must be a smiley
+            }
+            else if (isBalanced(str.substr(chIndex + 1), parenDepth - 1)) {
+                parenDepth--;
+            }
+        }
+        if (parenDepth == -1) {
             return false;
         }
     }
-    return true;
+    return (parenDepth == 0);
 }
 
-// - An open parenthesis '(', followed by a message with balanced parentheses, followed by a close parenthesis ')'.
-bool isContainingBalanced(string str) {
-    char firstChar = str.at(0);
-    char lastChar = str.at(str.length() - 1);
-    if (firstChar == '(' && lastChar == ')') {
-        string innerStr = str.substr(1, str.length() - 2);
-        return isBalanced(innerStr);
+// thanks http://stackoverflow.com/questions/5878775/how-to-find-and-replace-string
+string replaceAll(string subject, string search, string replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != string::npos) {
+        subject.replace(pos, search.length(), replace);
+        pos += replace.length();
     }
-    else {
-        return false;
-    }
-}
-
-// - A message with balanced parentheses followed by another message with balanced parentheses. 
-bool isDoubleBalanced(string str) {
-    if ((str.find(')') == -1) && (str.find('(') == -1)) { // A "double" message will always have at least one paren.
-        return false;
-    }
-    for (int separator = 1; separator < str.length(); ++separator) {
-        string leftStr = str.substr(0, separator);
-        string rightStr = str.substr(separator);
-        if (isBalanced(leftStr) && isBalanced(rightStr)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// - A smiley face ":)" or a frowny face ":(" 
-bool isEmoticon(string str) {
-    if ((str.compare(":)") == 0) || (str.compare(":(") == 0)) {
-        return true;
-    }
-    return false;
-}
-
-bool isBalanced(string str) {
-    if (isEmpty(str)) {
-        return true;
-    }
-    else if (isLegalChars(str)) {
-        return true;
-    }
-    else if (isContainingBalanced(str)) {
-        return true;
-    }
-    else if (isDoubleBalanced(str)) {
-        return true;
-    }
-    else if (isEmoticon(str)) {
-        return true;
-    }
-    return false;
+    return subject; 
 }
 
 int main(int argc, char** argv) {
@@ -84,7 +56,9 @@ int main(int argc, char** argv) {
     
     string line;
     while (getline(file, line)) {
-        if (isBalanced(line)) {
+        line = replaceAll(line, ":(", "[");
+        line = replaceAll(line, ":)", "]");
+        if (isBalanced(line, 0)) {
             cout << "YES" << endl;
         }
         else {
