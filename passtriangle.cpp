@@ -7,17 +7,19 @@
 
 using namespace std;
 
-int findMaxSum(vector<vector<int> > rows, int row, int index) {
-    int value = rows[row][index];
+int calcMaxSum(vector<vector<int> >&sums, vector<vector<int> > &rows, int row, int index) {
     if (row == rows.size() - 1) {
-        return value;
+        return rows[row][index];
     }
-    int leftSum = value + findMaxSum(rows, row + 1, index);
-    int rightSum = value + findMaxSum(rows, row + 1, index + 1);
-    if (leftSum > rightSum) {
-        return leftSum;
-    } else {
-        return rightSum;
+    else {
+        int leftMax = sums[row+1][index];
+        int rightMax = sums[row+1][index+1];
+        if (leftMax > rightMax) {
+            return rows[row][index] + leftMax;
+        }
+        else {
+            return rows[row][index] + rightMax;
+        }
     }
 }
 
@@ -42,7 +44,18 @@ int main(int argc, char** argv) {
     
     }
     
-    int maxSum = findMaxSum(rows, 0, 0);
+    // build an equivalently sized triangle, but where every node is the sum of every
+    // lower node
+    // actually it's a square... for easier initialization.
+    // but I treat it as a triangle.
+    vector<vector<int> > sums(rows.size(), vector<int>(rows.size(), 0));
+    for (int row = rows.size() - 1; row >= 0; --row) {
+        for (int index = 0; index < rows[row].size(); ++index) {
+            sums[row][index] = calcMaxSum(sums, rows, row, index);
+        }
+    }
+    
+    int maxSum = sums[0][0];
     cout << maxSum << endl;
     return 0;
 }
