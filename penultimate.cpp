@@ -2,7 +2,7 @@
 //  penultimate.cpp
 //  codeval1
 //
-//  Created by sonossqa on 7/7/14.
+//  Created by Malcolm Crum on 7/7/14.
 //
 //
 

@@ -2,7 +2,7 @@
 //  fizzbuzz.cpp
 //  codeval1
 //
-//  Created by sonossqa on 5/8/14.
+//  Created by Malcolm Crum on 5/8/14.
 //
 //
 
