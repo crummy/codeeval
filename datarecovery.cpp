@@ -9,49 +9,62 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <string>
+#include <sstream>
+#include <algorithm>
+
 using namespace std;
+
+vector<string> splitString(string str) {
+    vector<string> vec;
+    stringstream ss(str);
+    string s;
+    while (ss >> s) {
+        vec.push_back(s);
+    }
+    return vec;
+}
+
+vector<int> splitIntString(string str) {
+    vector<int> vec;
+    stringstream ss(str);
+    int i;
+    while (ss >> i) {
+        vec.push_back(i);
+    }
+    return vec;
+} 
 
 int main(int argc, char** argv) {
     ifstream fileInput;
     fileInput.open(argv[1]);
 
-    //while (fileInput.peek() != EOF) {
+    string line;
+    while (getline(fileInput, line)) {
         
-        string word;
-        vector<string> words;
-        fileInput >> word;
-        while (word.find(';') == string::npos) {
-            words.push_back(word);
-            fileInput >> word;
-        }
-        // the last "word" would normally get grabbed as 'word;9'.
-        // special handling is required to split it into 'word' and '9'
-        int semicolonIndex = word.find(';');
-        words.push_back(word.substr(0, semicolonIndex));
-        cout << "read " << words.size() << " words" << endl;
+        string wordString = line.substr(0, line.find(';'));
+        vector<string> words = splitString(wordString);
+        string orderString = line.substr(line.find(';') + 1);
+        vector<int> order = splitIntString(orderString);
         
-        for (int i = 0; i < words.size(); i++) {
-            cout << words[i] << " ";
-        }
-        cout << endl;
-        
-        int value;
-        vector<string> orderedWords;
-        orderedWords.resize(words.size());
-        // again, special handling required to get the number out of 'word;9'
-        value = atoi(word.substr(semicolonIndex, word.size()).c_str());
-        orderedWords[0] = words[value];
-        for(int i = 1; fileInput.peek() != '\n'; i++) {
-            fileInput >> value;
-            cout << "words[" << value << "] = " << words[value] << endl;
-            cout << "words[" << i << "] = " << words[i] << endl;
-            orderedWords[value] = words[i];
+        vector<string> orderedWords(order.size() + 1);
+        for (int i = 0; i < order.size(); ++i) {
+            int index = order[i] - 1;
+            //cout << words[i] << " ";
+            orderedWords[index] = words[i];
         }
         
-        for (int i = 0; i < orderedWords.size(); i++) {
-            cout << orderedWords[i] << " ";
+        int missingIndex = 1;
+        for (int i = 1; i < words.size() + 1; ++i) {
+            if (find(order.begin(), order.end(), i) == order.end()) {
+                missingIndex = i;
+                break;
+            }
+        }
+        orderedWords[missingIndex - 1] = words.back();
+        
+        for (vector<string>::iterator it = orderedWords.begin(); it != orderedWords.end(); ++it) {
+            cout << *it << " ";
         }
         cout << endl;
-    //}
+    }
 }
